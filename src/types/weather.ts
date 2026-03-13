@@ -28,6 +28,7 @@ export interface CurrentWeather {
   pop_current: number;          // 현재 시점의 강수 확률 (0 ~ 100%)
   precipitation_amount: number; // 최근 1시간 강수/강설량 (mm)
   precipitation_type: PrecipitationType; // 강수 형태 (비, 눈, 진눈깨비, 없음)
+  dt: number;                   // 현재 기준 시간의 타임스탬프 (초 단위, UTC)
 }
 
 // 3시간 단위 예보 데이터 인터페이스
@@ -40,6 +41,8 @@ export interface ForecastWeather {
   pop: number;                  // 예상 강수 확률 (0 ~ 100%)
   precipitation_amount: number; // 3시간 동안의 예상 강수/강설량 (mm)
   precipitation_type: PrecipitationType; // 예상 강수 형태
+  dt: number;                 // 예보 기준 시간의 타임스탬프 (초 단위, UTC)
+  dt_txt: string;             // 예보 기준 시간의 문자열 (예: "2026-03-09 12:00:00")
 }
 
 // 최종적으로 클라이언트에 반환될 전체 JSON 응답 구조

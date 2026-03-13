@@ -84,3 +84,18 @@
   line-height: 1;
   margin-bottom: -5px; /* 시각적 하단 정렬 미세조정 */
 }
+
+.blink-colon {
+  animation: blink 1s step-end infinite;
+  /* 만약 콜론 너비 때문에 주변 글씨가 흔들린다면 아래 속성을 켜주세요 */
+  /* display: inline-block; */
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}

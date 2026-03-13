@@ -1,7 +1,7 @@
 // src/App.tsx
 import { useEffect, useState } from 'react';
 import WeatherDashboard from './components/WeatherDashboard';
-import { WeatherResponse } from './types/weather';
+import type { WeatherResponse } from './types/weather';
 
 function App() {
   const [weatherData, setWeatherData] = useState<WeatherResponse | null>(null);
@@ -12,7 +12,7 @@ function App() {
       try {
         // 백엔드 주소 (라즈베리 파이 로컬에서 같이 돌린다면 localhost, 
         // 다른 PC에서 돌린다면 해당 PC의 IP 주소를 입력하세요. 예: http://192.168.1.15:3000/api/weather)
-        const res = await fetch('http://localhost:3000/api/weather');
+        const res = await fetch('http://192.168.0.175:3000/api/weather');
         
         if (!res.ok) throw new Error('네트워크 응답이 정상이 아닙니다.');
         

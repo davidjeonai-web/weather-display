@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import './WeatherDashboard.css';
-import { WeatherResponse } from './types/weather'; // 백엔드에서 만든 타입 import
+import type { WeatherResponse } from '../types/weather'; // 백엔드에서 만든 타입 import
 
 interface Props {
   data: WeatherResponse | null;
@@ -21,11 +21,11 @@ const getAqiText = (aqi: number) => {
 const WeatherDashboard: React.FC<Props> = ({ data }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
-  // 1분마다 시계 업데이트
+  // 1초 마다 시계 업데이트
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000);
+    }, 300);
     return () => clearInterval(timer);
   }, []);
 
@@ -37,15 +37,28 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
     hour12: true,
   }).format(currentTime);
 
+  // ':'를 기준으로 문자열 분리 (결과: ["Tue 9", "45 AM"])
+  const timeParts = formattedTime.split(':');
+
+  
+  useEffect(() => {
+    console.log(data?.forecast_3hourly)
+  }, [data]);
+
   if (!data || !data.current) {
     return <div className="dashboard-container">날씨 데이터를 불러오는 중입니다...</div>;
   }
+  
 
   const { current, forecast_3hourly } = data;
   const aqiText = getAqiText(current.air_quality_index);
   
   // 예보 데이터 중 앞의 4개만 사용 (화면 스케치 기준)
-  const displayForecasts = forecast_3hourly.slice(0, 4);
+  const nowInSeconds = Math.floor(Date.now() / 1000);
+
+  const displayForecasts = forecast_3hourly
+    .filter(item => item.dt >= nowInSeconds) // 현재 시간 이후의 데이터만 필터링
+    .slice(0, 4);
 
   return (
     <div className="dashboard-container">
@@ -84,7 +97,9 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
         </div>
         
         <div className="clock-display">
-          {formattedTime}
+          {timeParts[0]}
+          <span className="blink-colon">:</span>
+          {timeParts[1]}
         </div>
       </div>
     </div>
