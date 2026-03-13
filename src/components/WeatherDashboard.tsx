@@ -1,35 +1,33 @@
-import React, { useState, useEffect, use } from 'react';
+// src/components/WeatherDashboard.tsx
+import React, { useState, useEffect } from 'react';
 import './WeatherDashboard.css';
-import type { WeatherResponse } from '../types/weather'; // 백엔드에서 만든 타입 import
+import type { WeatherResponse } from '../types/weather';
 
 interface Props {
   data: WeatherResponse | null;
 }
 
-// 대기질 지수(AQI)를 텍스트로 변환하는 유틸 함수
 const getAqiText = (aqi: number) => {
-  switch (aqi) {
-    case 1: return 'good';
-    case 2: return 'fair';
-    case 3: return 'moderate';
-    case 4: return 'poor';
-    case 5: return 'very poor';
-    default: return 'unknown';
-  }
+  if (aqi <= 1) return 'good';
+  if (aqi === 2) return 'moderate';
+  if (aqi === 3) return 'unhealthy for sensitive groups';
+  if (aqi === 4) return 'unhealthy';
+  if (aqi === 5) return 'very unhealthy';
+  return 'hazardous';
 };
 
 const WeatherDashboard: React.FC<Props> = ({ data }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
-  // 1초 마다 시계 업데이트
+  // 1초마다 시계 업데이트 (콜론 깜빡임 동기화)
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 300);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // 시간 포맷팅 (예: "Tue 9:45 am")
+  // 시간 포맷팅 (예: "Tue 9:45 AM")
   const formattedTime = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
     hour: 'numeric',
@@ -37,39 +35,32 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
     hour12: true,
   }).format(currentTime);
 
-  // ':'를 기준으로 문자열 분리 (결과: ["Tue 9", "45 AM"])
   const timeParts = formattedTime.split(':');
-
-  
-  useEffect(() => {
-    console.log(data?.forecast_3hourly)
-  }, [data]);
 
   if (!data || !data.current) {
     return <div className="dashboard-container">날씨 데이터를 불러오는 중입니다...</div>;
   }
-  
 
-  const { current, forecast_3hourly } = data;
+  const { current, forecast_hourly, alerts } = data;
   const aqiText = getAqiText(current.air_quality_index);
   
-  // 예보 데이터 중 앞의 4개만 사용 (화면 스케치 기준)
-  const nowInSeconds = Math.floor(Date.now() / 1000);
-
-  const displayForecasts = forecast_3hourly
-    .filter(item => item.dt >= nowInSeconds) // 현재 시간 이후의 데이터만 필터링
-    .slice(0, 4);
+  // 1시간 단위 예보 4개 추출
+  const displayForecasts = forecast_hourly.slice(0, 4);
 
   return (
     <div className="dashboard-container">
+      {/* 🚨 기상특보가 있을 경우 상단에 배지 렌더링 */}
+      {alerts && alerts.length > 0 && (
+        <div className="alert-banner">
+          🚨 {alerts[0].event}
+        </div>
+      )}
+
       {/* 상단: 아이콘, 온도, 대기질 */}
       <div className="top-section">
         <div className="weather-icon">
-          {/* 공식 OWM CDN 이미지를 사용하거나 로컬 커스텀 이미지를 연결하세요 */}
-          <img 
-            src={`https://openweathermap.org/img/wn/${current.icon}@4x.png`} 
-            alt={current.weather} 
-          />
+          {/* 백엔드에서 https: 처리를 해두었으므로 그대로 사용 */}
+          <img src={current.icon} alt={current.weather} />
         </div>
         <div className="current-temp-info">
           <div className="temp-main">{Math.round(current.temperature)}c</div>
@@ -84,8 +75,10 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
       <div className="bottom-section">
         <div className="forecast-grid">
           {displayForecasts.map((forecast, index) => {
-            // "2026-03-09 12:00:00" 형태의 문자열에서 시간("12")만 추출
-            const hour = new Date(forecast.time.replace(' ', 'T')).getHours();
+            // "2026-03-09 12:00" 문자열에서 시(hour)만 추출
+            // timezone 이슈를 막기 위해 문자열 파싱 사용
+            const hourStr = forecast.time.split(' ')[1].split(':')[0];
+            const hour = parseInt(hourStr, 10);
             
             return (
               <div key={index} className="forecast-col">
@@ -96,6 +89,7 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
           })}
         </div>
         
+        {/* 깜빡이는 콜론이 적용된 시계 */}
         <div className="clock-display">
           {timeParts[0]}
           <span className="blink-colon">:</span>

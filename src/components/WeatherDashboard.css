@@ -1,18 +1,38 @@
-/* WeatherDashboard.css */
+/* src/components/WeatherDashboard.css */
 .dashboard-container {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
-  height: 100vh; /* 전체 화면 사용 */
+  height: 100vh;
   padding: 20px;
   background-color: #ffffff;
   color: #000000;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   box-sizing: border-box;
+  position: relative;
 }
 
-/* 상단 영역: 날씨 아이콘, 현재 온도, 대기질 */
+/* 🚨 기상특보 배지 */
+.alert-banner {
+  background-color: #ff3b30;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 15px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* 상단 영역 */
 .top-section {
   display: flex;
   align-items: flex-start;
@@ -50,7 +70,7 @@
   margin-left: 10px;
 }
 
-/* 하단 영역: 시간별 예보, 현재 시각 */
+/* 하단 영역 */
 .bottom-section {
   display: flex;
   justify-content: space-between;
@@ -78,24 +98,20 @@
   font-weight: bold;
 }
 
+/* 시계 영역 */
 .clock-display {
   font-size: 4rem;
   font-weight: 500;
   line-height: 1;
-  margin-bottom: -5px; /* 시각적 하단 정렬 미세조정 */
+  margin-bottom: -5px;
 }
 
+/* 깜빡이는 콜론 */
 .blink-colon {
   animation: blink 1s step-end infinite;
-  /* 만약 콜론 너비 때문에 주변 글씨가 흔들린다면 아래 속성을 켜주세요 */
-  /* display: inline-block; */
 }
 
 @keyframes blink {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
