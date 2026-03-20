@@ -1,3 +1,13 @@
+
+body {
+  /* 1순위는 사용할 폰트, 뒤에는 로드 실패 시 보여줄 시스템 폰트들(Fallback)입니다. */
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+  
+  /* 글자를 더 부드럽게 렌더링해주는 옵션 (선택사항) */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;

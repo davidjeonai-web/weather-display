@@ -6,13 +6,30 @@ interface Props {
   data: WeatherResponse | null;
 }
 
+const sanitizeAlertText = (text: string): string => {
+  return text
+    .replace(/\\n/g, ' ')
+    .replace(/[\r\t]/g, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
 const getCleanAlertTitle = (alert: WeatherAlert): string => {
   let title = (alert.event && alert.event.toLowerCase() !== 'weather') 
     ? alert.event 
     : alert.headline;
 
   title = title.replace(/( in effect| issued by| until| for | - ).*$/i, '');
-  return title.trim();
+
+  if (alert.instruction) {
+    const instructionPart = sanitizeAlertText(alert.instruction);
+    if (instructionPart) {
+      title += `: ${instructionPart}`;
+    }
+  }
+
+  return sanitizeAlertText(title);
 };
 
 const getAqiText = (aqi: number) => {
@@ -55,20 +72,20 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
       
       {/* 🚨 알림 배지: 수정하신 스타일 그대로 반영 */}
       {alerts && alerts.length > 0 && (
-        <div className="bg-[#ff3b30]/85 backdrop-blur-[10px] text-white py-[10px] px-[20px] rounded-[12px] text-[1.1rem] font-semibold text-center shadow-[0_4px_15px_rgba(0,0,0,0.3)] mb-[20px] animate-pulse">
+        <div className="bg-[#ff3b30]/85 backdrop-blur-[10px] text-white py-[10px] px-[20px] rounded-[12px] text-[1.1rem] font-semibold text-center mb-[20px] animate-pulse">
           🚨 {getCleanAlertTitle(alerts[0])}
         </div>
       )}
 
       {/* 🌤 메인 정보 글래스 패널 */}
-      <div className="bg-black/30 backdrop-blur-[15px] border border-white/10 rounded-[24px] p-[30px] flex items-center gap-[40px] w-fit shadow-xl">
+      <div className="bg-black/30 backdrop-blur-[15px] border border-white/10 rounded-[24px] p-[30px] flex items-center gap-7 w-fit shadow-xl">
         <div className="flex items-center">
           <img 
-            className="w-[140px] h-[140px] drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]"
+            className="w-25 h-25"
             src={getAnimatedIcon(current.code, current.is_day)} 
             alt={current.weather} 
           />
-          <div className="text-[5rem] font-[800] tracking-[-2px] ml-4 leading-none">
+          <div className="text-[5rem] font-[800] tracking-[-2px] leading-none">
             {Math.round(current.temperature)}°
           </div>
         </div>
@@ -96,7 +113,7 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
       {/* 📊 하단 영역 */}
       <div className="flex justify-between items-end mt-auto">
         {/* 시간별 예보 그리드 */}
-        <div className="flex gap-[20px] bg-black/20 backdrop-blur-[10px] p-[20px] rounded-[20px] border border-white/5">
+        <div className="flex gap-3 bg-black/20 backdrop-blur-[10px] p-[20px] rounded-[20px] border border-white/5">
           {forecast_hourly.slice(1, 5).map((forecast, index) => {
             const fTime = new Date(forecast.time);
             const fHour = fTime.getHours();
@@ -104,8 +121,8 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
             const fIsDay = fHour >= 6 && fHour < 18;
 
             return (
-              <div key={index} className="flex flex-col items-center w-[70px]">
-                <div className="text-[0.9rem] opacity-80 mb-[5px]">
+              <div key={index} className="flex flex-col items-center w-[50px]">
+                <div className="text-[0.9rem] opacity-80 mb-1">
                   {fHour < 12 ? '오전' : '오후'} {fDisplayHour}시
                 </div>
                 <div className="w-[45px] h-[45px]">
@@ -115,7 +132,7 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
                     alt="icon" 
                   />
                 </div>
-                <div className="text-[1.2rem] font-[600] mt-[5px]">
+                <div className="text-[1.2rem] font-[600] mt-1">
                   {Math.round(forecast.temperature)}°
                 </div>
               </div>
@@ -124,7 +141,7 @@ const WeatherDashboard: React.FC<Props> = ({ data }) => {
         </div>
         
         {/* ⏰ 우측 하단 시계 */}
-        <div className="text-right drop-shadow-[0_4px_10px_rgba(0,0,0,0.5)]">
+        <div className="text-right">
           <div className="text-[1.5rem] font-[400] opacity-90 mb-1">{dateStr}</div>
           <div className="text-[5.5rem] font-[700] leading-none flex items-baseline justify-end">
             <span className="text-[2.5rem] font-bold mr-3 opacity-80">{ampmPart}</span>
