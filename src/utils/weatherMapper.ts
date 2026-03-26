@@ -66,11 +66,15 @@ export const weatherCodeMap: Record<number, { day: string; night: string }> = {
   1282: { day: 'thunderstorms-snow', night: 'thunderstorms-snow' },           // Moderate or heavy snow with thunder
 };
 
+const filled:Boolean = false
+
 /**
  * 날씨 코드와 낮/밤 여부에 따라 적절한 SVG 경로를 반환하는 헬퍼 함수
  */
 export const getAnimatedIcon = (code: number, isDay: boolean): string => {
   const iconSet = weatherCodeMap[code];
+
+  const additionalPath = filled ? '' : '/line';
   
   // 만약 매핑된 코드가 없으면 기본값(맑음) 반환
   if (!iconSet) {
@@ -78,5 +82,5 @@ export const getAnimatedIcon = (code: number, isDay: boolean): string => {
   }
 
   const fileName = isDay ? iconSet.day : iconSet.night;
-  return `/icons/${fileName}.svg`;
+  return `/icons${additionalPath}/${fileName}.svg`;
 };
